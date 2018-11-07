@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { compose, graphql } from 'react-apollo';
 import { Transition } from 'react-spring';
 
-import AsyncSelect from 'BasicComponents/InputFields/AsyncSelect';
+import AsyncSelect from 'BasicComponents/InputFields/AdminAsyncSelect';
 import { SearchHeaderWrapper, StyledCloseButton } from './UiComponents';
 import { GET_SEARCHBAR_STATE, TOGGLE_SEARCHBAR_STATE } from '../../graphQl/schema';
 import { searchHeaderHeight } from '../../config';

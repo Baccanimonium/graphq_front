@@ -4,6 +4,7 @@ export default {
     mainElementsColor: '#fbb710',
     secondElementsColor: '#131212',
     secondBackgroundColor: '#3c3c3c',
+    errorColor: 'red',
     textColor: '#b3b1b1',
     inputTextColor: '#afafaf',
     headersColor: '#242424',
@@ -17,5 +18,9 @@ export default {
             height: '80px',
             width: '250px',
         },
+    },
+    borders: {
+        radius: '.1875rem',
+        defaultColor: '#ddd',
     },
 };

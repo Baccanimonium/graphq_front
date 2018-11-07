@@ -5,9 +5,7 @@ import Product from './Product';
 class AdminRoute extends Component {
     render() {
         return (
-            <div>
-                <Product />
-            </div>
+            <Product />
         );
     }
 }

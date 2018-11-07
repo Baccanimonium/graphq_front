@@ -26,16 +26,16 @@ class App extends Component {
                 >
                     {(props) => (
                         <ContentWrapper style={props}>
-                            <div className="mobile-nav">
-                                <div className="amado-navbar-brand">
-                                    <a href="index.html"><img src="img/core-img/logo.png" alt="" /></a>
-                                </div>
-                                <div className="amado-navbar-toggler">
-                                    <span />
-                                    <span />
-                                    <span />
-                                </div>
-                            </div>
+                            {/*<div className="mobile-nav">*/}
+                                {/*<div className="amado-navbar-brand">*/}
+                                    {/*<a href="index.html"><img src="img/core-img/logo.png" alt="" /></a>*/}
+                                {/*</div>*/}
+                                {/*<div className="amado-navbar-toggler">*/}
+                                    {/*<span />*/}
+                                    {/*<span />*/}
+                                    {/*<span />*/}
+                                {/*</div>*/}
+                            {/*</div>*/}
                             <SideBar menuItems={MenuItems} />
                             {children}
                         </ContentWrapper>

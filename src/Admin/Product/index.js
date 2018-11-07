@@ -1,60 +1,105 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { graphql } from 'react-apollo';
-import { Formik } from 'formik';
-import Dropzone from 'react-dropzone';
-import { UPLOAD_FILE } from '../../graphQl/schema';
+import { graphql, compose } from 'react-apollo';
+import { Formik, Field } from 'formik';
+import memoizeOne from 'memoize-one';
+
+import { AdminPageContentContainer } from 'BasicComponents/AdminCommonUiComponents';
+import AdminInputField from 'BasicComponents/InputFields/AdminInputField';
+import AdminTextArea from 'BasicComponents/InputFields/AdminTextAreaField';
+import AdminDropZoneField from 'BasicComponents/InputFields/AdminDropZoneField';
+import CreatableSelect from 'BasicComponents/InputFields/CreatableSelect';
+import PageHeader from 'BasicComponents/PageHeader';
+import { YellowButton } from 'BasicComponents/Buttons/UiComponents';
+import { ADD_NEW_CATEGORY, UPLOAD_PRODUCT, GET_ALL_CATEGORIES } from '../../graphQl/schema';
+
+import { FieldContainer, FullWidthWrapper } from './UiComponents';
 
 class Product extends Component {
-    state = {
-        name: '',
-        content: '',
-    }
+    static propTypes = {};
 
-    handleChange = (value) => {
-        console.log(value);
-        this.setState({ name: value });
-    }
 
-    handleSubmit = (event) => {
-        event.preventDefault();
-
-        const file = new Blob([this.state.content], { type: 'text/plain' });
-        file.name = `${this.state.name}.txt`;
-
-        this.props.mutate({
-            variables: { file },
-            update(proxy, { data: { singleUpload } }) {
-                const data = proxy.readQuery({ query: uploadsQuery });
-                data.uploads.push(singleUpload);
-                proxy.writeQuery({ query: uploadsQuery, data });
-            },
-        });
-    }
+    renderSelectOptions = memoizeOne((data) => data.map(({ id, name }) => ({
+        label: name,
+        value: id,
+    })));
 
     render() {
+        const { uploadProduct, getAllCategories: { loading, getCategories = [] }, addNewCategory } = this.props;
+        const categoryOptions = this.renderSelectOptions(getCategories);
         return (
-            <Formik
-                onSubmit={() => { this.props.uploadFile({ variables: { file: this.state.name } }); }}
-                render={({ handleSubmit }) => (
-                    <form onSubmit={handleSubmit}>
+            <AdminPageContentContainer>
+                <PageHeader title="Upload products" />
 
-                        <input type="text" name="name" />
-                        <textarea type="description" name="name" />
-                        <Dropzone onDrop={this.handleChange}>
-                            <p>Try dropping some files here, or click to select files to upload.</p>
-                        </Dropzone>
-                        <input type="price" name="name" />
-                        <input type="quantity" name="name" />
-                        <button type="submit">Upload</button>
-                    </form>
-                )}
-            />
+                <Formik
+                    onSubmit={(values, actions) => {
+                        uploadProduct({ variables: values });
+                    }}
+                    render={({ handleSubmit, values: { image } }) => (
+                        <FieldContainer onSubmit={handleSubmit}>
+                            <Field
+                                name="categoryId"
+                                render={({ field, ...props }) => (
+                                    <CreatableSelect
+                                        label="category id"
+                                        options={categoryOptions}
+                                        onCreateOption={(value) => addNewCategory({ variables: { name: value } })}
+                                        {...field}
+                                        {...props}
+                                    />
+                                )}
+                            />
+                            <Field
+                                label="name"
+                                name="name"
+                                component={AdminInputField}
+                            />
+                            <Field
+                                label="price"
+                                name="price"
+                                type="price"
+                                component={AdminInputField}
+                            />
+                            <Field
+                                label="description"
+                                name="description"
+                                component={AdminTextArea}
+                            />
+                            <Field
+                                label="quantity"
+                                name="quantity"
+                                type="quantity"
+                                component={AdminInputField}
+                            />
+                            <FullWidthWrapper>
+                                <Field
+                                    name="image"
+                                    render={({ field, ...props }) => (
+                                        <AdminDropZoneField
+                                            {...field}
+                                            {...props}
+                                            isShowingPreview
+                                            files={image}
+                                            multiple
+                                            accept="image/jpeg"
+                                            label="Images"
+                                        />
+                                    )}
+                                />
+                            </FullWidthWrapper>
+                            <YellowButton type="submit">Upload</YellowButton>
+                        </FieldContainer>
+                    )}
+                />
+            </AdminPageContentContainer>
 
         );
     }
 }
 
-Product.propTypes = {};
 
-export default graphql(UPLOAD_FILE, { name: 'uploadFile' })(Product);
+export default compose(
+    graphql(GET_ALL_CATEGORIES, { name: 'getAllCategories' }),
+    graphql(UPLOAD_PRODUCT, { name: 'uploadProduct' }),
+    graphql(ADD_NEW_CATEGORY, { name: 'addNewCategory', options: { refetchQueries: [{ query: GET_ALL_CATEGORIES }] } }),
+)(Product);

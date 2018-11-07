@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 
 export const ContentWrapper = styled.div`
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(auto, 20rem) 1fr;
 `;

@@ -113,13 +113,14 @@ const client = new ApolloClient({
 ReactDOM.render(
     <ApolloProvider client={client}>
         <ThemeProvider theme={theme}>
-            <LayoutStyles>
+            <React.Fragment>
+                <LayoutStyles />
                 <Router history={history}>
                     <App>
                         <Routes />
                     </App>
                 </Router>
-            </LayoutStyles>
+            </React.Fragment>
         </ThemeProvider>
     </ApolloProvider>,
     document.getElementById('root')
