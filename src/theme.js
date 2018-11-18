@@ -1,6 +1,7 @@
 export default {
     defaultColor: '#fff',
     elementsBackground: '#f5f7fa',
+    accentBackgroundColor: '#f5f7fa',
     mainElementsColor: '#fbb710',
     secondElementsColor: '#131212',
     secondBackgroundColor: '#3c3c3c',
@@ -22,5 +23,8 @@ export default {
     borders: {
         radius: '.1875rem',
         defaultColor: '#ddd',
+    },
+    links: {
+        grayColor: '#959595',
     },
 };

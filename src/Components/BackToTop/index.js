@@ -74,11 +74,12 @@ class BackToTop extends PureComponent {
         const { isVisible } = this.state;
         return (
             <Transition
+                items={isVisible}
                 from={{ opacity: 0, transform: 'TranslateY(20%)' }}
                 enter={{ opacity: 1, transform: 'TranslateY(-120%)' }}
                 leave={{ opacity: 0, transform: 'TranslateY(20%)' }}
             >
-                {isVisible && ((styles) => (
+                {(visible) => visible && ((styles) => (
                     <BackToTopButton style={styles} onClick={this.scrollToTop}>
                         <BackToTopIcon />
                     </BackToTopButton>

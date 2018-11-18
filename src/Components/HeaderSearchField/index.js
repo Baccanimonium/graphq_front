@@ -21,8 +21,8 @@ class SearchField extends Component {
     render() {
         const { data: { openSearchBar }, toggleSearchBarState } = this.props;
         return (
-            <Transition {...animationsConstants}>
-                {openSearchBar && ((styles) => (
+            <Transition items={openSearchBar} {...animationsConstants}>
+                {(shouldRender) => shouldRender && ((styles) => (
                     <div style={{ ...animationWrapperStyles, ...styles }}>
                         <SearchHeaderWrapper height={searchHeaderHeight}>
                             <StyledCloseButton onClick={toggleSearchBarState} />

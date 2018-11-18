@@ -2,7 +2,6 @@ import styled, { css } from 'styled-components';
 import { Link } from 'react-router-dom';
 
 export const LinkStyle = css`
-    text-transform: uppercase;
     position: relative;
     z-index: 1;
     display: block;

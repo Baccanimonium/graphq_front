@@ -7,21 +7,21 @@ const Global = createGlobalStyle`
         ${normalize()}
         @font-face {
             font-family: 'helveticaneuebold';
-            src: url("../public/fonts/helvetica_neu_bold-webfont.woff2") format("woff2"),
-            url("../public/fonts/helvetica_neu_bold-webfont.woff") format("woff");
+            src: url("../dist/fonts/helvetica_neu_bold-webfont.woff2") format("woff2"),
+            url("../dist/fonts/helvetica_neu_bold-webfont.woff") format("woff");
             font-weight: normal;
             font-style: normal; 
         }
         @font-face {
             font-family: 'helveticaneuemedium';
-            src: url("../public/fonts/helveticaneue_medium-webfont.woff2") format("woff2"),
-            url("../public/fonts/helveticaneue_medium-webfont.woff") format("woff");
+            src: url("../dist/fonts/helveticaneue_medium-webfont.woff2") format("woff2"),
+            url("../dist/fonts/helveticaneue_medium-webfont.woff") format("woff");
             font-weight: normal;
             font-style: normal; 
         }
         @font-face {
             font-family: 'Roboto-Regular';
-            src: url("../public/fonts/Roboto-Regular.ttf") format("ttf");
+            src: url("../dist/fonts/Roboto-Regular.ttf") format("ttf");
             font-weight: normal;
             font-style: normal; 
         }
@@ -54,8 +54,15 @@ const Global = createGlobalStyle`
             font-weight: 600;
             color: ${({ theme }) => theme.headersColor};
         }
+        h5 {
+            font-size: 18px;
+        }
         p {
             line-height: 1.9;
+        }
+        ul {
+          padding: 0;
+          list-style: none;
         }
 `;
 
