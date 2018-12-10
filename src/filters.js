@@ -1,3 +1,5 @@
+export const colorNames = ['white', 'gray', 'black', 'blue', 'red', 'yellow', 'orange', 'brown'];
+
 export const colorFilters = [
     {
         value: 'white',

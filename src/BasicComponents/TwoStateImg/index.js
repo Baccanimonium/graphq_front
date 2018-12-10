@@ -17,8 +17,9 @@ class TwoStateImg extends Component {
     };
 
     render() {
-        // const { img: [firstImg, secondImg] } = this.props;
+        // const { img } = this.props;
         const { toggle } = this.state;
+        const { images: [firstImg, secondImg] } = this.props;
         return (
             <ImgWrapper onMouseEnter={this.toggleOnHoveredState} onMouseLeave={this.toggleOffHoveredState}>
                 <Transition
@@ -28,8 +29,8 @@ class TwoStateImg extends Component {
                     leave={{ opacity: 0, display: 'none' }}
                 >
                     {(toggled) => (toggled
-                        ? (props) => <Img style={props} src="/img/product-img/product6.jpg" alt="" />
-                        : (props) => <Img style={props} src="/img/product-img/product1.jpg" alt="" />
+                        ? (props) => <Img style={props} src={firstImg} alt="" />
+                        : (props) => <Img style={props} src={secondImg} alt="" />
                     )}
                 </Transition>
             </ImgWrapper>

@@ -16,7 +16,8 @@
 .env.test.local
 .env.production.local
 /amado
-
+.idea/
+dist/img
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

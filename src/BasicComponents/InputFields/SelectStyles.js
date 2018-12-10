@@ -1,37 +1,39 @@
-export default {
-    option: (base, state) => ({
-        ...base,
-        borderBottom: '1px dotted pink',
-        color: state.isFullscreen ? 'red' : 'blue',
-        padding: 20,
-    }),
-    control: (base) => ({
-        ...base,
-        position: 'relative',
-        height: '60px',
-        boxShadow: '0 0 5px rgba(0, 0, 0, 0.075)',
-        color: '#6b6b6b',
-        borderRadius: '0',
-    }),
-    dropdownIndicator: () => ({
-        display: 'none',
-    }),
-    indicatorSeparator: () => ({
-        display: 'none',
-    }),
-    valueContainer: (base) => ({
-        ...base,
-        marginLeft: '2.5rem',
-        position: 'static',
-    }),
-    singleValue: (base, state) => {
-        const opacity = state.isDisabled ? 0.5 : 1;
-        const transition = 'opacity 300ms';
+import transparentize from 'polished/lib/color/transparentize';
 
-        return {
-            ...base,
-            opacity,
-            transition,
-        };
-    },
-};
+export default (theme) => ({
+    container: (base) => ({
+        ...base,
+        minWidth: '8rem',
+    }),
+    control: (base, state) => ({
+        ...base,
+        borderColor: !state.selectProps.haserror ? theme.borders.defaultColor : theme.errorColor,
+        backgroundColor: `${theme.defaultColor}`,
+        borderRadius: `${theme.borders.radius}`,
+    }),
+    dropdownIndicator: (base) => ({
+        ...base,
+        color: theme.textColor,
+        fontSize: '.8rem',
+        paddingTop: '.55rem',
+        paddingRight: '.55rem',
+        svg: {
+            transition: 'transform 250ms ease-in-out',
+            width: '12px!important',
+            height: '12px!important',
+        },
+    }),
+    indicatorSeparator: (base, state) => ({
+        ...base,
+        display: state.selectProps.isSearchable ? 'static' : 'none',
+    }),
+    option: (base) => ({
+        ...base,
+        cursor: 'pointer',
+        backgroundColor: 'none',
+        transition: '200ms background-color linear',
+        '&:hover': {
+            backgroundColor: transparentize(0.55, theme.mainElementsColor),
+        },
+    }),
+});

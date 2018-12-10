@@ -23,7 +23,7 @@ const options = {
     stats: { colors: true },
     proxy:
         [{
-            context: ['/graphql', '/assets'],
+            context: ['/graphql', '/assets', '/static'],
             target: 'http://localhost:3001',
         }],
 };

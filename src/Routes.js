@@ -13,7 +13,7 @@ const Routes = () => (
     <Switch>
         <Route path="/admin" component={AdminRoute} />
         <Route path={`${PRODUCT_PAGE}/:id`} component={ProductPage} />
-        <Route path={SHOP_PAGE} component={ShopPage} />
+        <Route path={`${SHOP_PAGE}/:category?`} component={ShopPage} />
         <Route path={CHECK_OUT_PAGE} component={CheckOutPage} />
         <Route path={MAIN_PAGE} component={MainPage} />
     </Switch>

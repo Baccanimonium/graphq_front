@@ -3,7 +3,7 @@ import styled from 'styled-components';
 export const ImgWrapper = styled.div`
     position: relative;
     width: 100%;
-    padding-bottom: 124.5%;
+    padding-bottom: 100%;
 `;
 
 export const Img = styled.img`

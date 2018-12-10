@@ -9,15 +9,17 @@ import AdminInputField from 'BasicComponents/InputFields/AdminInputField';
 import AdminTextArea from 'BasicComponents/InputFields/AdminTextAreaField';
 import AdminDropZoneField from 'BasicComponents/InputFields/AdminDropZoneField';
 import CreatableSelect from 'BasicComponents/InputFields/CreatableSelect';
+import Select from 'BasicComponents/InputFields/Select';
 import PageHeader from 'BasicComponents/PageHeader';
 import { YellowButton } from 'BasicComponents/Buttons/UiComponents';
 import { ADD_NEW_CATEGORY, UPLOAD_PRODUCT, GET_ALL_CATEGORIES } from '../../graphQl/schema';
 
 import { FieldContainer, FullWidthWrapper } from './UiComponents';
+import { colorNames } from '../../filters';
 
+const selectOptions = colorNames.map((color) => ({ label: color, value: color }));
 class Product extends Component {
     static propTypes = {};
-
 
     renderSelectOptions = memoizeOne((data) => data.map(({ id, name }) => ({
         label: name,
@@ -61,15 +63,22 @@ class Product extends Component {
                                 component={AdminInputField}
                             />
                             <Field
-                                label="description"
-                                name="description"
-                                component={AdminTextArea}
-                            />
-                            <Field
                                 label="quantity"
                                 name="quantity"
                                 type="quantity"
                                 component={AdminInputField}
+                            />
+                            <Field
+                                label="Colors"
+                                name="colors"
+                                component={Select}
+                                options={selectOptions}
+                                isMulti
+                            />
+                            <Field
+                                label="description"
+                                name="description"
+                                component={AdminTextArea}
                             />
                             <FullWidthWrapper>
                                 <Field

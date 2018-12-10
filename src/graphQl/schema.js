@@ -21,12 +21,13 @@ export const UPLOAD_FILE = gql`
 `;
 
 export const UPLOAD_PRODUCT = gql`
-  mutation ($name: String!, $description: String!, $price: String!
+  mutation ($name: String!, $description: String!, $price: String!, $colors: [String!]!
         $quantity: String!, $image: [Upload], $categoryId: ID!) {
             addProducts (
                 name: $name,
                 description: $description
                 price: $price
+                colors: $colors
                 quantity: $quantity
                 image: $image
                 categoryId: $categoryId
@@ -58,5 +59,17 @@ export const ADD_NEW_CATEGORY = gql`
                     id
                     name
                 }
+    }
+`;
+
+export const GET_PRODUCTS_BY_CATEGORY_ID = gql`
+    query($categoryId: ID!) {
+        getProducts(categoryId: $categoryId) {
+            id
+            name
+            price
+            quantity
+            image
+        }
     }
 `;

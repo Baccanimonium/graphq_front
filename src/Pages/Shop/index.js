@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import { graphql, compose } from 'react-apollo';
+import memoizeOne from 'memoize-one';
+
 import PropTypes from 'prop-types';
 import RangeInput from 'BasicComponents/InputFields/RangeInput';
 import TwoStateImg from 'BasicComponents/TwoStateImg';
@@ -11,22 +14,66 @@ import {
 
 
 import { colorFilters } from '../../filters';
+import { GET_ALL_CATEGORIES, GET_PRODUCTS_BY_CATEGORY_ID } from '../../graphQl/schema';
 
 class ShopPage extends Component {
+    static defaultProps = {
+        getProducts: {
+            getProducts: [],
+        },
+    };
+
+    renderCategoryList = memoizeOne((list) => (
+        list.map(({ name, id }) => (
+            <li key={id}><CategoryItems to={`/shop/${name}`}>{name}</CategoryItems></li>
+        ))
+    ));
+
+    renderCategoryItems = memoizeOne((products = []) => (
+        products.map(({ name, price, image, id }) => (
+            <Product key={id}>
+                <TwoStateImg images={image} />
+
+                <ProductEntitiesContainer>
+                    <div>
+                        <ProductPrice>{name}</ProductPrice>
+                        <ProductName>${price}</ProductName>
+                    </div>
+                    <ProductActions>
+                        <div className="ratings">
+                            <i className="fa fa-star" aria-hidden="true" />
+                            <i className="fa fa-star" aria-hidden="true" />
+                            <i className="fa fa-star" aria-hidden="true" />
+                            <i className="fa fa-star" aria-hidden="true" />
+                            <i className="fa fa-star" aria-hidden="true" />
+                        </div>
+                        <AddToCheckOut>
+                            <CartIcon />
+                        </AddToCheckOut>
+                    </ProductActions>
+                </ProductEntitiesContainer>
+            </Product>
+        ))
+    ))
+
+    componentDidUpdate({ match: { params: { category: PrevCategory } } }, nextState) {
+        const { match: { params: { category } } } = this.props;
+        if (category !== PrevCategory && category) {
+            console.log(category)
+        }
+    }
+
     render() {
+        const { getAllCategories: { loading, getCategories = [] },getProducts: { getProducts} } = this.props;
+        const categoriesList = this.renderCategoryList(getCategories);
+        const products = this.renderCategoryItems(getProducts)
         return (
             <ShopContentWrapper>
                 <CategoryAndFiltersWrapper>
                     <ItemsContainer>
                         <ItemsHeader>Categories</ItemsHeader>
                         <ul>
-                            <li><CategoryItems to="/shop">Chairs</CategoryItems></li>
-                            <li><CategoryItems to="/shop">Beds</CategoryItems></li>
-                            <li><CategoryItems to="/shop">Accessories</CategoryItems></li>
-                            <li><CategoryItems to="/shop">Furniture</CategoryItems></li>
-                            <li><CategoryItems to="/shop">Home Deco</CategoryItems></li>
-                            <li><CategoryItems to="/shop">Dressings</CategoryItems></li>
-                            <li><CategoryItems to="/shop">Tables</CategoryItems></li>
+                            {categoriesList}
                         </ul>
                     </ItemsContainer>
 
@@ -68,50 +115,7 @@ class ShopPage extends Component {
 
                 <ContentWrapper>
                     <ProductsContainer>
-                        <Product>
-                            <TwoStateImg />
-
-                            <ProductEntitiesContainer>
-                                <div>
-                                    <ProductPrice>$180</ProductPrice>
-                                    <ProductName>Modern Chair</ProductName>
-                                </div>
-                                <ProductActions>
-                                    <div className="ratings">
-                                        <i className="fa fa-star" aria-hidden="true" />
-                                        <i className="fa fa-star" aria-hidden="true" />
-                                        <i className="fa fa-star" aria-hidden="true" />
-                                        <i className="fa fa-star" aria-hidden="true" />
-                                        <i className="fa fa-star" aria-hidden="true" />
-                                    </div>
-                                    <AddToCheckOut>
-                                        <CartIcon />
-                                    </AddToCheckOut>
-                                </ProductActions>
-                            </ProductEntitiesContainer>
-                        </Product>
-                        <Product>
-                            <TwoStateImg />
-
-                            <ProductEntitiesContainer>
-                                <div>
-                                    <ProductPrice>$180</ProductPrice>
-                                    <ProductName>Modern Chair</ProductName>
-                                </div>
-                                <ProductActions>
-                                    <div className="ratings">
-                                        <i className="fa fa-star" aria-hidden="true" />
-                                        <i className="fa fa-star" aria-hidden="true" />
-                                        <i className="fa fa-star" aria-hidden="true" />
-                                        <i className="fa fa-star" aria-hidden="true" />
-                                        <i className="fa fa-star" aria-hidden="true" />
-                                    </div>
-                                    <AddToCheckOut>
-                                        <CartIcon />
-                                    </AddToCheckOut>
-                                </ProductActions>
-                            </ProductEntitiesContainer>
-                        </Product>
+                        {products}
                     </ProductsContainer>
 
 
@@ -129,4 +133,16 @@ class ShopPage extends Component {
 
 ShopPage.propTypes = {};
 
-export default ShopPage;
+export default compose(
+    graphql(GET_ALL_CATEGORIES, { name: 'getAllCategories' }),
+    graphql(GET_PRODUCTS_BY_CATEGORY_ID,
+        {
+            name: 'getProducts',
+            skip: ({ match: { params: { category } } }) => category === undefined,
+            options: ({ match: { params: { category } } }) => ({
+                variables: {
+                    categoryId: category,
+                },
+            }),
+        }),
+)(ShopPage);
