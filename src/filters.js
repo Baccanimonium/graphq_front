@@ -34,3 +34,5 @@ export const colorFilters = [
         color: '#9a8777',
     },
 ];
+
+export const brandFilters = ['Ikea', 'Furniture Inc', 'The factory', 'Artdeco'];

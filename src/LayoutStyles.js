@@ -34,6 +34,16 @@ const Global = createGlobalStyle`
     *, ::after, ::before {
         box-sizing: border-box;
     }
+    
+    button {
+      outline: 0!important;
+    }
+    
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
+    
     body {
         font-family: helveticaneuemedium;
         font-weight: 400;

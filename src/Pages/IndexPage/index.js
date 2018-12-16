@@ -1,41 +1,23 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { AutoSizer, CellMeasurer, CellMeasurerCache, createMasonryCellPositioner, Masonry } from 'react-virtualized';
 import ImageMeasurer from 'react-virtualized-image-measurer';
+import { graphql } from 'react-apollo';
+
+
 import { MasonryWrapper, ItemData, Price, ItemTitle } from './UiComponents';
 import { PRODUCT_PAGE } from '../../config';
+import { GET_PRODUCTS } from '../../graphQl/schema';
 
-import img1 from '../../../amado/img/bg-img/1.jpg';
-import img2 from '../../../amado/img/bg-img/2.jpg';
-import img3 from '../../../amado/img/bg-img/3.jpg';
-import img4 from '../../../amado/img/bg-img/4.jpg';
-import img5 from '../../../amado/img/bg-img/5.jpg';
-import img6 from '../../../amado/img/bg-img/6.jpg';
-import img7 from '../../../amado/img/bg-img/7.jpg';
-import img8 from '../../../amado/img/bg-img/8.jpg';
-import img9 from '../../../amado/img/bg-img/9.jpg';
-
-// Array of images with captions
-const list = [
-    { source: img1, caption: '1Modern Chair', imageHeight: '250', imageWidth: '250', price: 'From $180', id: 'asdasdas11' },
-    { source: img2, caption: '2Minimalistic Plant Pot', imageHeight: '250', imageWidth: '250', price: 'From $180', id: 'asdasdas22' },
-    { source: img3, caption: '3Modern Chair', imageHeight: '250', imageWidth: '250', price: 'From $180', id: 'asdasdas33' },
-    { source: img4, caption: '4Night Stand', imageHeight: '250', imageWidth: '250', price: 'From $180', id: 'asdasdas44' },
-    { source: img5, caption: '5Plant Pot', imageHeight: '250', imageWidth: '250', price: 'From $18', id: 'asdasdas55' },
-    { source: img6, caption: '6Small Table', imageHeight: '250', imageWidth: '250', price: 'From $320', id: 'asdasdas66' },
-    { source: img7, caption: '7Metallic Chair', imageHeight: '250', imageWidth: '250', price: 'From $320', id: 'asdasdas77' },
-    { source: img8, caption: '8Modern Rocking Chair', imageHeight: '250', imageWidth: '250', price: 'From $320', id: 'asdasdas88' },
-    { source: img9, caption: '9Home Deco', imageHeight: '250', imageWidth: '250', price: '$318', id: 'asdasdas99' },
-];
-
-
-const keyMapper = (index) => list[index].id;
-// Default sizes help Masonry decide how many images to batch-measure
-
-// Our masonry layout will use 3 columns with a 10px gutter between
-
+const itemsPerLoad = 15;
+const sortDirection = 'desc';
 
 class IndexPage extends Component {
+    static propTypes = {
+        getProducts: PropTypes.shape({}).isRequired,
+    };
+
     constructor(props) {
         super(props);
         this.defaultHeight = 300;
@@ -43,6 +25,7 @@ class IndexPage extends Component {
         this.itemsWithSizes = {};
         this.state = {
             columnWidth: 300,
+            page: 0,
         };
         this.cache = new CellMeasurerCache({
             defaultHeight: 300,
@@ -52,9 +35,31 @@ class IndexPage extends Component {
         this.cellPositioner = createMasonryCellPositioner({
             cellMeasurerCache: this.cache,
             columnCount: this.columnCount,
+            // eslint-disable-next-line react/destructuring-assignment
             columnWidth: this.state.columnWidth,
         });
     }
+
+    handleScroll = ({ clientHeight, scrollTop }) => {
+        const { getProducts: { loading, fetchMore } } = this.props;
+        const { page } = this.state;
+        if (scrollTop % clientHeight > clientHeight / 3
+            && !loading
+            && page === Math.floor(scrollTop / clientHeight)) {
+            this.setState((prevState) => ({ page: prevState.page + 1 }));
+            const newPageLimitsCount = (page + 2) * itemsPerLoad;
+            fetchMore({
+                variables: {
+                    skip: newPageLimitsCount - itemsPerLoad,
+                    limit: newPageLimitsCount,
+                    lastPurchase: sortDirection,
+                },
+                updateQuery: (prev, { fetchMoreResult }) => Object.assign(
+                    {}, prev, { getProducts: [...prev.getProducts, ...fetchMoreResult.getProducts] }
+                ),
+            });
+        }
+    };
 
     onResize = ({ width }) => {
         this.setState({ columnWidth: width / 3 });
@@ -83,12 +88,12 @@ class IndexPage extends Component {
                                 }}
                             >
                                 <Price>{item.price}</Price>
-                                <ItemTitle>{item.caption}</ItemTitle>
+                                <ItemTitle>{item.name}</ItemTitle>
                             </ItemData>
                             <img
                                 onLoad={measure}
-                                src={item.source}
-                                alt={item.caption}
+                                src={item.image[0]}
+                                alt={item.name}
                                 style={{
                                     height: imgHeight,
                                     width: columnWidth,
@@ -102,16 +107,22 @@ class IndexPage extends Component {
         );
     };
 
+    keyMapper = (index) => {
+        const { getProducts: { getProducts = [] } } = this.props;
+
+        return getProducts[index].id;
+    };
+
     render() {
         const { columnWidth } = this.state;
-
+        const { getProducts: { getProducts = [] } } = this.props;
         return (
             <MasonryWrapper>
                 <AutoSizer onResize={this.onResize}>
                     {({ height, width }) => (
                         <ImageMeasurer
-                            items={list}
-                            image={(item) => item.source}
+                            items={getProducts}
+                            image={(item) => item.image[0]}
                             onError={(error, item, src) => {
                                 console.error(
                                     'Cannot load image',
@@ -130,12 +141,13 @@ class IndexPage extends Component {
                                 return (
                                     <Masonry
                                         cellCount={itemsWithSizes.length}
-                                        keyMapper={keyMapper}
+                                        keyMapper={this.keyMapper}
                                         cellMeasurerCache={this.cache}
                                         cellPositioner={this.cellPositioner}
                                         cellRenderer={this.cellRenderer}
                                         height={height}
                                         width={width}
+                                        onScroll={this.handleScroll}
                                         ref={(ref) => { this.masonryRef = ref; }}
                                     />
                                 );
@@ -148,6 +160,13 @@ class IndexPage extends Component {
     }
 }
 
-IndexPage.propTypes = {};
-
-export default IndexPage;
+export default graphql(GET_PRODUCTS, {
+    name: 'getProducts',
+    options: {
+        variables: {
+            skip: 0,
+            limit: itemsPerLoad,
+            lastPurchase: sortDirection,
+        },
+    },
+})(IndexPage);

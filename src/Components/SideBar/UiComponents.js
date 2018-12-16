@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import { Icon } from 'react-icons-kit';
 import { opencart } from 'react-icons-kit/fa/opencart';
 import { starO } from 'react-icons-kit/fa/starO';

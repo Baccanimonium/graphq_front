@@ -4,7 +4,7 @@ import { HoveredYellowButton } from 'BasicComponents/Buttons/UiComponents';
 export const ProductWrapper = styled.div` 
     display: grid;
     grid-column-gap: 2rem;
-    grid-template-columns: minmax(auto, 60%) 1fr;
+    grid-template-columns: minmax(auto, 65%) 1fr;
     padding-top: 5rem;
 `;
 export const Slide = styled.div`
@@ -20,6 +20,6 @@ export const ProductText = styled.p`
     color: ${({ theme }) => theme.productsDescriptionColor};
 `;
 
-export const SubmitButton = styled(HoveredYellowButton)`
+export const SubmitButton = styled(HoveredYellowButton).attrs({ type: 'submit' })`
     margin-top: 3rem;
 `;

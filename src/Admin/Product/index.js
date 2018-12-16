@@ -15,9 +15,10 @@ import { YellowButton } from 'BasicComponents/Buttons/UiComponents';
 import { ADD_NEW_CATEGORY, UPLOAD_PRODUCT, GET_ALL_CATEGORIES } from '../../graphQl/schema';
 
 import { FieldContainer, FullWidthWrapper } from './UiComponents';
-import { colorNames } from '../../filters';
+import { colorNames, brandFilters } from '../../filters';
 
 const selectOptions = colorNames.map((color) => ({ label: color, value: color }));
+const brandsOptions = brandFilters.map((brand) => ({ label: brand, value: brand }));
 class Product extends Component {
     static propTypes = {};
 
@@ -59,13 +60,11 @@ class Product extends Component {
                             <Field
                                 label="price"
                                 name="price"
-                                type="price"
                                 component={AdminInputField}
                             />
                             <Field
                                 label="quantity"
                                 name="quantity"
-                                type="quantity"
                                 component={AdminInputField}
                             />
                             <Field
@@ -73,6 +72,13 @@ class Product extends Component {
                                 name="colors"
                                 component={Select}
                                 options={selectOptions}
+                                isMulti
+                            />
+                            <Field
+                                label="Brands"
+                                name="brand"
+                                component={Select}
+                                options={brandsOptions}
                                 isMulti
                             />
                             <Field

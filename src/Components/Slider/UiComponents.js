@@ -10,7 +10,7 @@ export const SliderWrapper = styled.div`
 export const GridSliderWrapper = styled(SliderWrapper)`
     display: grid;
     grid-row-gap: 1rem;
-    grid-template-rows: 90% 1fr;
+    grid-template-rows: 80% 1fr;
 `;
 
 

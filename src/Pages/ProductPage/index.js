@@ -1,45 +1,53 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTheme } from 'styled-components';
-import { Formik } from 'formik';
+import { graphql, compose } from 'react-apollo';
+import { Formik, Field, Form } from 'formik';
+import memoizeOne from 'memoize-one';
+
 import Slider from 'Components/Slider';
 import { ItemPrice } from 'BasicComponents/CommonUiComponents';
 import NumberInput from 'BasicComponents/InputFields/NumberInput';
-import img1 from '../../../amado/img/product-img/pro-big-1.jpg';
-import img2 from '../../../amado/img/product-img/pro-big-2.jpg';
-import img3 from '../../../amado/img/product-img/pro-big-3.jpg';
-import img4 from '../../../amado/img/product-img/pro-big-4.jpg';
-import { ProductWrapper, Slide, ProductText, SubmitButton, ShortcutContaner } from './UiComponents';
+import { ProductWrapper, Slide, ProductText, SubmitButton } from './UiComponents';
 
+import { GET_PRODUCT, ADD_CART_ITEM } from '../../graphQl/schema';
 
-const ProductPage = ({ theme }) => {
+const renderSlidesList = memoizeOne((images = []) => (
+    images.map((image) => (
+        <Slide key={image} img={image} />
+    ))
+));
+
+const ProductPage = ({ theme, match: { params: { id } },
+    product: { getProduct: { name, price, image, description } = {} }, addCartItem }) => {
+    const renderedImages = renderSlidesList(image);
     return (
         <ProductWrapper>
             <Slider>
-                <Slide img={img1} />
-                <Slide img={img2} />
-                <Slide img={img3} />
-                <Slide img={img4} />
+                {renderedImages}
             </Slider>
             <div>
-                <ItemPrice>$180</ItemPrice>
-                <h4>White modern chair</h4>
+                <ItemPrice>${price}</ItemPrice>
+                <h4>{name}</h4>
                 <ProductText>
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquid quae eveniet culpa officia quidem
-                    mollitia impedit iste asperiores nisi reprehenderit consequatur, autem, nostrum pariatur enim?
+                    {description}
                 </ProductText>
                 <Formik
-                    onSubmit={(values, actions) =>  console.log(values)}
+                    onSubmit={(values) => addCartItem({ variables: { id, ...values } })}
                     render={({ errors, touched, isSubmitting }) => (
-                        <form>
-                            <NumberInput label="Qty" maxLength="4" value="1" />
+                        <Form>
+                            <Field
+                                label="Qty"
+                                name="quantity"
+                                component={NumberInput}
+                            />
                             <SubmitButton
                                 size={theme.buttonsSize.large}
                                 disabled={isSubmitting}
                             >
                                 Add to cart
                             </SubmitButton>
-                        </form>
+                        </Form>
                     )}
                 />
             </div>
@@ -48,7 +56,19 @@ const ProductPage = ({ theme }) => {
 };
 
 ProductPage.propTypes = {
-
+    theme: PropTypes.shape().isRequired,
+    product: PropTypes.shape().isRequired,
 };
 
-export default withTheme(ProductPage);
+export default compose(
+    withTheme,
+    graphql(GET_PRODUCT, {
+        name: 'product',
+        options: ({ match: { params: { id } } }) => ({
+            variables: {
+                id,
+            },
+        }),
+    }),
+    graphql(ADD_CART_ITEM, { name: 'addCartItem' })
+)(ProductPage);

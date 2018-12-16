@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Transition, animated } from 'react-spring';
+import shortId from 'shortid';
+
 import { ShortcutWrapper, SliderWrapper, GridSliderWrapper, ShortcutContaner } from './UiComponents';
-import memoize from 'memoize-one';
 
 const slideStyles = {
     position: 'absolute',
@@ -11,17 +12,13 @@ const slideStyles = {
 };
 
 class Slider extends Component {
-    constructor(props) {
-        super(props);
-        const { children } = props;
-        const slides = children.map((item) => (styles) => (
-            <animated.div style={{ ...slideStyles, ...styles }}>{item}</animated.div>
-        ));
-        this.state = {
-            current: 0,
-            slides,
-        };
-    }
+    static propTypes = {
+        children: PropTypes.arrayOf(PropTypes.element).isRequired,
+    };
+
+    state = {
+        current: 0,
+    };
 
     componentDidMount() {
         setInterval(() => this.setState((prevState, props) => {
@@ -33,26 +30,27 @@ class Slider extends Component {
     }
 
     renderCarousel = () => {
-        const { current, slides } = this.state;
-
+        const { current } = this.state;
+        const { children } = this.props;
         return (
             <Transition
-                keys={Math.random()}
+                items={children[current]}
+                keys={shortId.generate()}
                 from={{ opacity: 0, transform: 'translateX(100%)' }}
                 enter={{ opacity: 1, transform: 'translateX(0%)' }}
                 leave={{ opacity: 0, transform: 'translateX(-50%)' }}
             >
-                {slides[current]}
+                {(slide) => (props) => <animated.div style={{ ...slideStyles, ...props }}>{slide}</animated.div>}
             </Transition>
-        )
-    }
+        );
+    };
 
     render() {
-        const { current, slides } = this.state;
+        const { current } = this.state;
         const { children } = this.props;
 
         const subSlides = children.map((item, index) => (
-            <ShortcutContaner key={index} current={index === current}>{item}</ShortcutContaner>
+            <ShortcutContaner key={shortId.generate()} current={index === current}>{item}</ShortcutContaner>
         ));
 
         return (
@@ -65,19 +63,7 @@ class Slider extends Component {
                 </ShortcutWrapper>
             </GridSliderWrapper>
         );
-        // return (
-        //     <SliderWrapper>
-        //         {this.renderCarousel()}
-        //         <div>
-        //             {subSlides}
-        //         </div>
-        //     </SliderWrapper>
-        // );
     }
 }
-
-Slider.propTypes = {
-    children: PropTypes.arrayOf(PropTypes.element).isRequired,
-};
 
 export default Slider;

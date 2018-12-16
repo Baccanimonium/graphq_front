@@ -1,7 +1,8 @@
 import styled from 'styled-components';
-import { Icon } from 'react-icons-kit'
+import { Icon } from 'react-icons-kit';
 import { opencart } from 'react-icons-kit/fa/opencart';
-
+import { chevronLeft } from 'react-icons-kit/fa/chevronLeft';
+import { chevronRight } from 'react-icons-kit/fa/chevronRight';
 import Link from 'BasicComponents/Link';
 import DefaultCheckBox from 'BasicComponents/InputFields/DefaultCheckBox';
 
@@ -47,12 +48,17 @@ export const ColorFiltersWrapper = styled.div`
 export const ColorFilterButton = styled.button.attrs({
     type: 'button',
 })`
+    position: relative;
     cursor: pointer;
     border: 1px transparent;
     background-color: ${({ color }) => color};
     width: 1.5rem;
     height: 1.5rem;
     border-radius: 50%;
+    transition: box-shadow 0.3s ease-in-out;
+    &.active {
+        box-shadow: 0 0 8px 1px ${({ theme }) => theme.mainElementsColor};
+    }
 `;
 
 export const ContentWrapper = styled.div`
@@ -64,6 +70,7 @@ export const ProductsContainer = styled.div`
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-column-gap: 1rem;
+    grid-row-gap: 1.25rem;
 `;
 
 export const Product = styled.div`
@@ -128,3 +135,11 @@ export const PaginationButton = styled.button`
         color: ${({ theme }) => theme.defaultColor};
     }
 `;
+
+export const PrevButtonIcon = styled(Icon).attrs({
+    icon: chevronLeft,
+})``;
+
+export const NextButtonIcon = styled(Icon).attrs({
+    icon: chevronRight,
+})``;

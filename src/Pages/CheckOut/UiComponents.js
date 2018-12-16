@@ -1,5 +1,7 @@
 import styled from 'styled-components';
 import { HoveredYellowButton } from 'BasicComponents/Buttons/UiComponents';
+import { Icon } from 'react-icons-kit';
+import { handScissorsO } from 'react-icons-kit/fa/handScissorsO';
 
 export const ContentWrapper = styled.div`
     padding: 6.25rem 0;
@@ -38,4 +40,8 @@ export const CheckOutInformationItem = styled.li`
 
 export const CheckoutConfirmButton = styled(HoveredYellowButton)`
     width: 100%;
+`;
+
+export const RemoveIcon = styled(Icon).attrs({ icon: handScissorsO })`
+    cursor: pointer;
 `;

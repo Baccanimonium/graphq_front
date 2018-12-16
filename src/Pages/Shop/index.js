@@ -1,26 +1,35 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { graphql, compose } from 'react-apollo';
 import memoizeOne from 'memoize-one';
+import { Link } from 'react-router-dom';
 
-import PropTypes from 'prop-types';
 import RangeInput from 'BasicComponents/InputFields/RangeInput';
 import TwoStateImg from 'BasicComponents/TwoStateImg';
+import withPagination from '../../utils/withPagination';
+import withFilters from '../../utils/withFilters';
+import debounce from '../../utils/debounce';
 
 import {
     CategoryAndFiltersWrapper, ShopContentWrapper, ItemsHeader, CategoryItems, ItemsContainer, PaginationButton,
     FilteringCheckBox, ColorFilterButton, ColorFiltersWrapper, ContentWrapper, ProductsContainer, PaginationContainer,
     Product, ProductPrice, ProductEntitiesContainer, ProductName, ProductActions, AddToCheckOut, CartIcon,
+    PrevButtonIcon, NextButtonIcon,
 } from './UiComponents';
 
-
-import { colorFilters } from '../../filters';
-import { GET_ALL_CATEGORIES, GET_PRODUCTS_BY_CATEGORY_ID } from '../../graphQl/schema';
+import { PRODUCT_PAGE } from '../../config';
+import { colorFilters, brandFilters } from '../../filters';
+import { GET_ALL_CATEGORIES, GET_PRODUCTS } from '../../graphQl/schema';
 
 class ShopPage extends Component {
-    static defaultProps = {
-        getProducts: {
-            getProducts: [],
-        },
+    static propTypes = {
+        match: PropTypes.shape().isRequired,
+        getAllCategories: PropTypes.shape().isRequired,
+        getProducts: PropTypes.shape().isRequired,
+        history: PropTypes.shape().isRequired,
+        setPage: PropTypes.func.isRequired,
+        limit: PropTypes.number.isRequired,
+        page: PropTypes.number.isRequired,
     };
 
     renderCategoryList = memoizeOne((list) => (
@@ -32,41 +41,105 @@ class ShopPage extends Component {
     renderCategoryItems = memoizeOne((products = []) => (
         products.map(({ name, price, image, id }) => (
             <Product key={id}>
-                <TwoStateImg images={image} />
+                <Link to={`${PRODUCT_PAGE}/${id}`}>
+                    <TwoStateImg images={image} />
 
-                <ProductEntitiesContainer>
-                    <div>
-                        <ProductPrice>{name}</ProductPrice>
-                        <ProductName>${price}</ProductName>
-                    </div>
-                    <ProductActions>
-                        <div className="ratings">
-                            <i className="fa fa-star" aria-hidden="true" />
-                            <i className="fa fa-star" aria-hidden="true" />
-                            <i className="fa fa-star" aria-hidden="true" />
-                            <i className="fa fa-star" aria-hidden="true" />
-                            <i className="fa fa-star" aria-hidden="true" />
+                    <ProductEntitiesContainer>
+                        <div>
+                            <ProductPrice>{name}</ProductPrice>
+                            <ProductName>${price}</ProductName>
                         </div>
-                        <AddToCheckOut>
-                            <CartIcon />
-                        </AddToCheckOut>
-                    </ProductActions>
-                </ProductEntitiesContainer>
+                        <ProductActions>
+                            <AddToCheckOut>
+                                <CartIcon />
+                            </AddToCheckOut>
+                        </ProductActions>
+                    </ProductEntitiesContainer>
+                </Link>
             </Product>
         ))
-    ))
+    ));
 
-    componentDidUpdate({ match: { params: { category: PrevCategory } } }, nextState) {
-        const { match: { params: { category } } } = this.props;
-        if (category !== PrevCategory && category) {
-            console.log(category)
-        }
+    renderPagination = memoizeOne((page, length) => {
+        const { setPage, limit } = this.props;
+        return (
+            <PaginationContainer>
+                {page - 1 > 0 && (
+                    <PaginationButton onClick={setPage} value={page - 1}>
+                        <PrevButtonIcon />
+                    </PaginationButton>
+                )}
+                <PaginationButton className="active" onClick={setPage} value={page}>
+                    {page}
+                </PaginationButton>
+                {length === limit && (
+                    <PaginationButton onClick={setPage} value={parseInt(page, 10) + 1}>
+                        <NextButtonIcon />
+                    </PaginationButton>
+                )}
+            </PaginationContainer>
+        );
+    });
+
+    renderColorFilters = memoizeOne((selectedColors = []) => {
+        const { setFilters } = this.props;
+        return colorFilters.map(({ value, color }) => (
+            <ColorFilterButton
+                key={color}
+                className={selectedColors.includes(value) ? 'active' : ''}
+                color={color}
+                onClick={() => setFilters('colors', value)}
+            />
+        ));
+    });
+
+    renderBrandFilters = memoizeOne(() => {
+        const { setFilters } = this.props;
+        return brandFilters.map((brand) => (
+            <FilteringCheckBox
+                key={brand}
+                id={brand}
+                label={brand}
+                onClick={() => setFilters('brand', brand)}
+            />
+        ));
+    });
+
+    componentDidMount() {
+        this.redirectToFirstCategory();
     }
 
+    componentDidUpdate() {
+        this.redirectToFirstCategory();
+    }
+
+    redirectToFirstCategory = () => {
+        const {
+            match: { params: { category }, url },
+            getAllCategories: { getCategories: [{ name } = {}] = [] },
+            history: { push },
+        } = this.props;
+        if (!category && name) push(`${url}/${name}`);
+    };
+
+    handleChangePriceRange = ({ min, max }) => {
+        const { setFilters } = this.props;
+        setFilters('price', [min, max]);
+    };
+
     render() {
-        const { getAllCategories: { loading, getCategories = [] },getProducts: { getProducts} } = this.props;
+        const {
+            getAllCategories: { getCategories = [] },
+            getProducts: { getProducts = [] } = {}, page,
+            filters: { colors, price = [0, 10000] },
+        } = this.props;
+        const [min, max] = price;
         const categoriesList = this.renderCategoryList(getCategories);
-        const products = this.renderCategoryItems(getProducts)
+        const products = this.renderCategoryItems(getProducts);
+        const pagination = this.renderPagination(page, getProducts.length);
+        const colorsFilters = this.renderColorFilters(colors);
+        const brandsFilters = this.renderBrandFilters();
+        // console.log(brands);
         return (
             <ShopContentWrapper>
                 <CategoryAndFiltersWrapper>
@@ -79,24 +152,13 @@ class ShopPage extends Component {
 
                     <ItemsContainer>
                         <ItemsHeader>Brands</ItemsHeader>
-                        <FilteringCheckBox id="amado" label="Amado" />
-                        <FilteringCheckBox id="Ikea" label="Ikea" />
-                        <FilteringCheckBox id="Furniture Inc" label="Furniture Inc" />
-                        <FilteringCheckBox id="The factory" label="The factory" />
-                        <FilteringCheckBox id="Artdeco" label="Artdeco" />
+                        {brandsFilters}
                     </ItemsContainer>
 
                     <ItemsContainer>
                         <ItemsHeader>Color</ItemsHeader>
                         <ColorFiltersWrapper>
-                            <ColorFilterButton color={colorFilters[0].color} />
-                            <ColorFilterButton color={colorFilters[1].color} />
-                            <ColorFilterButton color={colorFilters[2].color} />
-                            <ColorFilterButton color={colorFilters[3].color} />
-                            <ColorFilterButton color={colorFilters[4].color} />
-                            <ColorFilterButton color={colorFilters[5].color} />
-                            <ColorFilterButton color={colorFilters[6].color} />
-                            <ColorFilterButton color={colorFilters[7].color} />
+                            {colorsFilters}
                         </ColorFiltersWrapper>
                     </ItemsContainer>
 
@@ -104,12 +166,12 @@ class ShopPage extends Component {
                         <ItemsHeader>Price</ItemsHeader>
                         <RangeInput
                             draggableTrack
-                            maxValue={1000}
+                            maxValue={10000}
                             minValue={1}
-                            value={{ min: 151, max: 1000 }}
-                            onChange={() => (null)}
+                            value={{ min, max }}
+                            onChange={this.handleChangePriceRange}
                         />
-                        <div>$10 - $1000</div>
+                        <div>${min} - ${max}</div>
                     </ItemsContainer>
                 </CategoryAndFiltersWrapper>
 
@@ -117,31 +179,27 @@ class ShopPage extends Component {
                     <ProductsContainer>
                         {products}
                     </ProductsContainer>
-
-
-                    <PaginationContainer>
-                        <PaginationButton className="active">01.</PaginationButton>
-                        <PaginationButton>02.</PaginationButton>
-                        <PaginationButton>03.</PaginationButton>
-                        <PaginationButton>04.</PaginationButton>
-                    </PaginationContainer>
+                    {pagination}
                 </ContentWrapper>
             </ShopContentWrapper>
         );
     }
 }
 
-ShopPage.propTypes = {};
-
 export default compose(
+    withPagination,
+    withFilters,
     graphql(GET_ALL_CATEGORIES, { name: 'getAllCategories' }),
-    graphql(GET_PRODUCTS_BY_CATEGORY_ID,
+    graphql(GET_PRODUCTS,
         {
             name: 'getProducts',
             skip: ({ match: { params: { category } } }) => category === undefined,
-            options: ({ match: { params: { category } } }) => ({
+            options: ({ match: { params: { category } }, limit, skip, filters }) => ({
                 variables: {
                     categoryId: category,
+                    limit,
+                    skip,
+                    ...filters,
                 },
             }),
         }),

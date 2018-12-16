@@ -9,11 +9,23 @@ const SearchIcon = styled(Icon).attrs({
     size: '18',
 })`
     position: absolute;
-    left: 1rem;
-    top: 1.3rem;
+    right: 1rem;
+    top: 0.6rem;
 `;
 
 export const InputComponent = (props) => [
     <SearchIcon key="icon" />,
     <components.Input {...props} key="Input" />,
 ];
+export const renderOption = (properties) => {
+    const { label: optionLabel, data: { optionComponent } = {} } = properties;
+
+    return (
+        <components.Option {...properties}>
+            <div>
+                {optionLabel}
+                {optionComponent && (optionComponent)}
+            </div>
+        </components.Option>
+    );
+};

@@ -2,9 +2,9 @@ import React from 'react';
 
 export default [
     {
-        key: 'img',
+        key: 'image',
         format: (item) => (
-            <img src={item} alt="item img" width="150" />
+            <img src={item[0]} alt="item img" width="200" />
         ),
     },
     {
@@ -14,9 +14,10 @@ export default [
     {
         key: 'price',
         label: 'Price',
+        format: (item) => `$${item}`,
     },
     {
-        key: 'quantity',
+        key: 'SelectedQuantity',
         label: 'Quantity',
     },
 ];

@@ -15,3 +15,6 @@ export const StyledCloseButton = styled(CloseButton)`
     top: 0;
     right: 0;
 `;
+export const AccentSpan = styled.span`
+    font-weight: 700;
+`;

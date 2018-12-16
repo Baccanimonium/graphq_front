@@ -4,7 +4,8 @@ import { Form } from 'formik';
 export const PromotionSectionWrapper = styled.section`
     background-color: ${({ theme }) => theme.secondBackgroundColor};
     position: relative;
-    padding-top: 6.25rem;
+    padding-top: 3.25rem;
+    margin-top: 3rem;
 `;
 
 export const ContentWrapper = styled.div`
